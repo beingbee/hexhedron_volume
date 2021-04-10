@@ -1,0 +1,235 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "hexhedron volume calculation serverless web application"
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Runtime: python3.8
+    Timeout: 60 
+    Tracing: Active
+    MemorySize: 128 
+    Tags:
+      Application: serverless-web-app
+  Api:
+    Auth:
+      UsagePlan:
+        UsagePlanName: DailyUsagePlan
+        CreateUsagePlan: PER_API
+        Description: Limit 1000 executions per day and throttle executions on 10% of that.
+        Quota:
+          Limit: 1000
+          Period: DAY
+        Throttle:
+          BurstLimit: 20
+          RateLimit: 10
+
+Parameters:
+  VersionParam:
+    Type: String
+    Default: v1
+  StageNameParam:
+    Type: String
+    Default: prod
+  CognitoDomainName:
+    Type: String
+    Default: hexvolume 
+  Repository:
+    Type: String
+    Description: GitHub Repository URL
+  Branch:
+    Type: String
+    Description: GitHub Branch to deploy
+    Default: master
+  OauthToken:
+    Type: String
+    Description: GitHub Auth Personal token from https://github.com/settings/tokens
+
+Resources:
+# Cognito
+  HexVolUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UserPoolName: HexVolUsers
+      UsernameAttributes:
+      - email
+      AutoVerifiedAttributes:
+      - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: true
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: true
+  
+  HexVolUserPoolTokenClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref HexVolUserPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: ['code', 'implicit']
+      CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]]
+      SupportedIdentityProviders: ['COGNITO']
+      AllowedOAuthScopes: ['email']
+      ExplicitAuthFlows:
+      - USER_PASSWORD_AUTH
+  
+  HexVolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: !Join ['-', [!Ref CognitoDomainName, !Ref AWS::StackName]]
+      UserPoolId: !Ref HexVolUserPool
+
+  # API Gateway 
+  HexVolApi:
+    Type: AWS::Serverless::Api
+    MethodSettings: 
+        DataTraceEnabled: true
+        MetricsEnabled: true
+        HttpMethod: '*'
+        ResourcePath: !Sub '${VersionParam}/*'
+        LoggingLevel: INFO
+    AccessLogSetting:
+      DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
+      Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
+    Properties:
+      Name: HexVolApi
+      StageName: !Ref StageNameParam
+      TracingEnabled: true
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,DELETE'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt "HexVolUserPool.Arn"
+            
+  # Lambda
+  CompleteHexVolFunction:
+      Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+      Properties:
+        CodeUri: lambda/
+        Handler: hex_vol.lambda_handler
+        Tracing: Active
+        Policies:
+          - CloudWatchPutMetricPolicy: {}
+        Environment:
+          Variables:
+            AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+            ENDPOINT_OVERRIDE: ""
+
+        Events:
+          CompleteItem:
+            Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+            Properties:
+              Path: /hex_volume
+              Method: POST
+              RestApiId: !Ref HexVolApi
+              Auth:
+                Authorizer: CognitoAuthorizer
+
+
+  # Role for API Gateway access log
+  ApiGatewayPushToCloudWatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Description: "Push logs to CloudWatch logs from API Gateway"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+
+  # Access Log 
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${HexVolApi}
+      RetentionInDays: 61
+
+  # Web Frontend
+  AmplifyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - amplify.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: Amplify
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: "amplify:*"
+                Resource: "*"
+
+  AmplifyApp:
+    Type: "AWS::Amplify::App"
+    Properties:
+      Name: HexVolApp
+      Repository: !Ref Repository
+      Description: HexVol app frontend
+      OauthToken: !Ref OauthToken
+      BuildSpec: |-
+        version: 0.1
+        frontend:
+          phases:
+            build:
+              commands:
+                - cd www/src
+                - npm install
+                - npm run build
+          artifacts:
+            baseDirectory: www/build/
+            files:
+              - '**/*'
+      Tags:
+        - Key: Name
+          Value: HexVol
+      IAMServiceRole: !GetAtt AmplifyRole.Arn
+
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      BranchName: !Ref Branch
+      AppId: !GetAtt AmplifyApp.AppId
+      Description: Amplify Branch
+      EnableAutoBuild: true
+      Tags:
+        - Key: Name
+          Value: hexvol-amplify-branch
+        - Key: Branch
+          Value: !Ref Branch
+
+Outputs:
+  HexVolFunctionApi:
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub "https://${HexVolApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
+  CognitoID:
+    Description: The Cognito UserPool ID
+    Value: !Ref HexVolUserPool
+  CognitoClientID:
+    Description: The Cognito UserPool Client ID
+    Value: !Ref HexVolUserPoolTokenClient
+  CognitoDomainName:
+    Description: The Cognito Hosted UI Domain Name
+    Value: !Join ['', [!Ref CognitoDomainName, '-', !Ref AWS::StackName, '.auth.', !Ref AWS::Region, '.amazoncognito.com']]
+  AmplifyURL:
+    Value: !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]
+
