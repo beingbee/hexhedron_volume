@@ -1,4 +1,7 @@
-set -x
+#!/usr/bin/bash
+
+commit="no"
+[ $# -ge 1 ] && [ "$1" = "commit" ] && commit="yes"
 
 [ -z "$STACK_NAME" ] &&  { echo "Please specify STACK_NAME environment variable"; exit 1; }
 [ -z "$AWS_DEFAULT_REGION" ] && { echo "Please specify AWS_DEFAULT_REGION environment variable";  exit 1; }
@@ -29,6 +32,9 @@ else
   sed -i -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' www/src/config.js
 fi
 
-git add www/src/config.js
-git commit -m 'Frontend config update'
-git push
+[ $commit = "yes" ] && {
+  echo "Commit and Push to origie"
+  git add www/src/config.js
+  git commit
+  git push
+}
