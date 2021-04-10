@@ -16,13 +16,14 @@ Globals:
       UsagePlan:
         UsagePlanName: DailyUsagePlan
         CreateUsagePlan: PER_API
-        Description: Limit 1000 executions per day and throttle executions on 10% of that.
+        Description: This will limit 5000 executions per day and throttle executions on 10% of that.
         Quota:
-          Limit: 1000
+          Limit: 5000
           Period: DAY
         Throttle:
-          BurstLimit: 20
-          RateLimit: 10
+          BurstLimit: 100
+          RateLimit: 50
+
 
 Parameters:
   VersionParam:
@@ -110,7 +111,7 @@ Resources:
             UserPoolArn: !GetAtt "HexVolUserPool.Arn"
             
   # Lambda
-  CompleteHexVolFunction:
+  HexVolFunction:
       Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
       Properties:
         CodeUri: lambda/
@@ -123,7 +124,7 @@ Resources:
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
             ENDPOINT_OVERRIDE: ""
         Layers:
-          - Arn: arn:aws:lambda:ap-northeast-2:296580773974:layer:AWSLambda-Python37-SciPy1x:35
+          - arn:aws:lambda:ap-northeast-2:296580773974:layer:AWSLambda-Python37-SciPy1x:35
 
         Events:
           CompleteItem:
@@ -157,7 +158,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/apigateway/AccessLog-${HexVolApi}
-      RetentionInDays: 61
+      RetentionInDays: 365
 
   # Web Frontend
   AmplifyRole:
