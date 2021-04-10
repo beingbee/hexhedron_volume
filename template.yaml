@@ -41,7 +41,7 @@ Parameters:
   Branch:
     Type: String
     Description: GitHub Branch to deploy
-    Default: master
+    Default: main
   OauthToken:
     Type: String
     Description: GitHub Auth Personal token from https://github.com/settings/tokens

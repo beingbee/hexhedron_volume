@@ -9,6 +9,7 @@ def calculate_volume():
     return hull.volume
 
 def lambda_handler(event, context):
+    print(event)
     return {
         "statusCode": 200,
         'headers': {
