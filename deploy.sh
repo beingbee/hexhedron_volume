@@ -1,10 +1,11 @@
 set -x
 
-[ -z "$STACK_NAME" ] && echo "Please specify STACK_NAME environment variable" && exit 1;
-[ -z "$AWS_DEFAULT_REGION" ] && echo "Please specify AWS_DEFAULT_REGION environment variable" && exit 1;
+[ -z "$STACK_NAME" ] &&  { echo "Please specify STACK_NAME environment variable"; exit 1; }
+[ -z "$AWS_DEFAULT_REGION" ] && { echo "Please specify AWS_DEFAULT_REGION environment variable";  exit 1; }
 
-sam build --use-container
-sam deploy --guided --stack-name $STACK_NAME
+sam build  || { echo "Error!! build failure"; exit 1; }
+sam deploy --guided --stack-name $STACK_NAME  || { echo "Error!! deploy failure"; exit 1; }
+
 
 export AWS_COGNITO_REGION=$AWS_DEFAULT_REGION
 export AWS_USER_POOLS_WEB_CLIENT_ID=`aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CognitoClientID'].OutputValue" --output text`

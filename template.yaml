@@ -5,12 +5,12 @@ Description: "hexhedron volume calculation serverless web application"
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Runtime: python3.8
+    Runtime: python3.7
     Timeout: 60 
     Tracing: Active
-    MemorySize: 128 
+    MemorySize: 256
     Tags:
-      Application: serverless-web-app
+      Application: python-serverless-web-app
   Api:
     Auth:
       UsagePlan:
@@ -122,6 +122,8 @@ Resources:
           Variables:
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
             ENDPOINT_OVERRIDE: ""
+        Layers:
+          - Arn: arn:aws:lambda:ap-northeast-2:296580773974:layer:AWSLambda-Python37-SciPy1x:35
 
         Events:
           CompleteItem:
