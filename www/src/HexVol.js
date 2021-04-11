@@ -9,8 +9,8 @@ function HexVol({ hexVolume, calcHexVol }) {
     <div className="HexVol">
       <Form inline>
         <FormGroup>
-          <Label for="newVertices">Input 2x4 Vertices List (e.g.[[0,0,0],[1,0,0],[0,1,0],[1,1,0]], [[0,0,1],[1,0,1],[0,1,1],[1,1,1]]) </Label>
-          <Input type="text" name="newVertices" id="newVertices" placeholder="2 x 4 vertices list" />
+          <Label for="newVertices">Input 2x4 Vertices List</Label>
+          <Input type="text" name="newVertices" id="newVertices" placeholder="[[(0,0,0),(1,0,0),(0,1,0),(1,1,0)], [(0,0,1),(1,0,1),(0,1,1),(1,1,1)]]" />
         </FormGroup>
         <Button onClick={calcHexVol} color="primary" className="ml-1">Calculate</Button>
       </Form>

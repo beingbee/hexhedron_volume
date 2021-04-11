@@ -62,20 +62,8 @@ function App() {
     
     if (!item || item === '') return;
     
-    try {
-      user_input = JSON.parse(item);
-      if (!(user_input instanceof Array) &&
-            user_input.length == 2 &&
-            user_input[0].length == 4 &&
-            user_input[1].length == 4)
-        throw SyntaxError('input format is invalid');
-    } catch(e) {
-      setHexVol("value error in input")
-      return
-    }
-
     const newData = {
-      "extent": user_input
+      "extent": item
     };
 
     const result = await axios({
