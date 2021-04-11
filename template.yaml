@@ -223,7 +223,7 @@ Resources:
 Outputs:
   HexVolFunctionApi:
     Description: API Gateway endpoint URL for Prod stage
-    Value: !Sub "https://${HexVolApi}.execute-api.${AWS::Region}.amazonaws.com/{StageNameParam}"
+    Value: !Sub "https://${HexVolApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
   CognitoID:
     Description: The Cognito UserPool ID
     Value: !Ref HexVolUserPool
