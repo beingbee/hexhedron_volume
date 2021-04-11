@@ -34,6 +34,6 @@ fi
 [ $commit = "yes" ] && {
   echo "Commit and Push to origie"
   git add www/src/config.js
-  git commit
+  git commit -m "config.js updated"
   git push
 }

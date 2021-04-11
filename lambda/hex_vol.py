@@ -13,7 +13,6 @@ def calculate_volume(vertex):
 def process_input(event):
     # TODO. temporary return only fixed input
 
-    logging.info(event)
     input = [ [0, 0, 0], [ 0, 1, 0], [1, 0, 0], [1, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 1]]
     # input validation. return exception.
     # convert input to vertex list
@@ -21,6 +20,7 @@ def process_input(event):
 
 
 def lambda_handler(event, context):
+    logging.info(event)
     input = process_input(event)
     volume = calculate_volume(input)
     return {
