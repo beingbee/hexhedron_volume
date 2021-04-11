@@ -136,33 +136,6 @@ Resources:
               Auth:
                 Authorizer: CognitoAuthorizer
 
-  HexVolGetFunction:
-      Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-      Properties:
-        CodeUri: lambda/
-        Handler: hex_vol.lambda_handler
-        Tracing: Active
-        Policies:
-          - CloudWatchPutMetricPolicy: {}
-        Environment:
-          Variables:
-            AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-            ENDPOINT_OVERRIDE: ""
-        Layers:
-          - arn:aws:lambda:ap-northeast-2:296580773974:layer:AWSLambda-Python37-SciPy1x:35
-
-        Events:
-          CompleteItem:
-            Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-            Properties:
-              Path: /hex_volume
-              Method: GET
-              RestApiId: !Ref HexVolApi
-              Auth:
-                Authorizer: CognitoAuthorizer
-
-
-
 
   # Role for API Gateway access log
   ApiGatewayPushToCloudWatchRole:

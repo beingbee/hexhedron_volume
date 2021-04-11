@@ -67,14 +67,6 @@ function App() {
     const newData = {
       "extent": "{" + item + "}"
     };
-    const res_get = await axios({
-      method: 'GET',
-      url: `${config.api_base_url}/hex_volume/`,
-      headers: {
-        Authorization: idToken
-      },
-    });
-    console.log(res_get.data)
 
     const result = await axios({
       method: 'POST',
