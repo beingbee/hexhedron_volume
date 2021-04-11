@@ -69,7 +69,7 @@ function App() {
     };
 
     const result = await axios({
-      method: 'PUT',
+      method: 'POST',
       url: `${config.api_base_url}/hex_volume/`,
       headers: {
         Authorization: idToken
