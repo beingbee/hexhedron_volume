@@ -12,13 +12,15 @@ function HexVol({ hexVolume, calcHexVol }) {
           <Form inline>
             <FormGroup>
               <Label for="newVertices">Input 2x4 Vertices List e.g.[[0,0,0],[1,0,0],[0,1,0],[1,1,0]], [[0,0,1],[1,0,1],[0,1,1],[1,1,1]] </Label>
-              <Input type="text" name="newVertices" id="newVertices" placeholder="two rectangle plane composed of 2 x 4 vertices list" />
+              <Input type="text" name="newVertices" id="newVertices" placeholder="2 x 4 vertices list" />
             </FormGroup>
             <Button onClick={calcHexVol} color="primary" className="ml-1">Calculate</Button>
           </Form>
         </Col>
+      </Row>
+      <Row>
         <Col xs="12" className="mt-1 mb-1">
-           {hexVolume}
+           Volume is {hexVolume}
         </Col>
       </Row>
     </div >

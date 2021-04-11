@@ -100,6 +100,8 @@ function App() {
             <Col md="6" className="logo">
               <h1>Hexhedron Volumne Calculation</h1>
             </Col>
+          </Row>  
+          <Row>
             <Col md="6">
               {idToken.length > 0 ?
                 (
