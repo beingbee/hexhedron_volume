@@ -1,9 +1,9 @@
 {
-  "body": "eyAiZXh0ZW50IjogWyBbKDAsIDAsIDApLCAoMCwgMSwgMCksICgxLCAwLCAwKSwgKDEsIDEsIDApXSwgWygwLCAwLCAxKSwgKDAsIDEsIDEpLCAoMSwgMCwgMSksICgxLCAxLCAxKV0gXSB9",
+  "body": { "extent": [[0,0,0],[1,0,0],[0,1,0],[1,1,0]], [[0,0,1],[1,0,1],[0,1,1],[1,1,1]],
   "resource": "/{proxy+}",
   "path": "/hex_volume",
   "httpMethod": "POST",
-  "isBase64Encoded": true,
+  "isBase64Encoded": false,
   "queryStringParameters": {
     "foo": "bar"
   },

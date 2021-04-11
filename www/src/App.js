@@ -66,7 +66,7 @@ function App() {
       user_input = JSON.parse(item);
       if (!(user_input instanceof Array) &&
             user_input.length == 2 &&
-            user_input[0].length == 2 &&
+            user_input[0].length == 4 &&
             user_input[1].length == 4)
         throw SyntaxError('input format is invalid');
     } catch(e) {
