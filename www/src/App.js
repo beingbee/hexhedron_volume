@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Jumbotron, Row, Col, Alert, Button } from 'reactstrap';
 import axios from 'axios';
 import HexVol from './HexVol';
+import JSON from 'JSON';
 
 import './App.css';
 
@@ -56,16 +57,26 @@ function App() {
   const calcHexVol = async (event) => {
     const newVerticesInput = document.getElementById('newVertices');
     const item = newVerticesInput.value;
+    let user_input;
     
     console.log(item);
     
-    
     if (!item || item === '') return;
-   
-    // TODO input validation  
+    
+    try {
+      user_input = JSON.parse(item);
+      if (!(user_input instanceof Array) &&
+            user_input.length == 2 &&
+            user_input[0].length == 2 &&
+            user_input[1].length == 4)
+        throw SyntaxError('input format is invalid');
+    } catch(e) {
+      setHexVol("value error in input")
+      return
+    }
 
     const newData = {
-      "extent": "{" + item + "}"
+      "extent": user_input
     };
 
     const result = await axios({
