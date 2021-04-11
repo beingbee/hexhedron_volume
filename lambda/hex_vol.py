@@ -5,7 +5,7 @@ import logging
 
 
 def calculate_volume(vertex):
-    points = np.array(input)
+    points = np.array(vertex)
     hull = ConvexHull(points)
     return hull.volume
 
@@ -14,7 +14,7 @@ def process_input(event):
     # TODO. temporary return only fixed input
 
     logging.info(event)
-    input = [ [0, 0, 0], [ 0, 1, 0], [1, 0, 0], [1, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 2]]
+    input = [ [0, 0, 0], [ 0, 1, 0], [1, 0, 0], [1, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 1]]
     # input validation. return exception.
     # convert input to vertex list
     return input
@@ -28,7 +28,7 @@ def lambda_handler(event, context):
         'headers': {
             "Access-Control-Allow-Origin": "*"
         },
-        "body": json.dumps({
-            "volume": volume,
-        }),
+        "body": {
+            "volume": volume
+        }
     }
