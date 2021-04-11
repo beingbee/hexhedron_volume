@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Container, Jumbotron, Row, Col, Alert, Button } from 'reactstrap';
 import axios from 'axios';
 import HexVol from './HexVol';
-import JSON from 'JSON';
 
 import './App.css';
 
