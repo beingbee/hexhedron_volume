@@ -62,9 +62,9 @@ Resources:
         PasswordPolicy:
           MinimumLength: 6
           RequireLowercase: true
-          RequireNumbers: false
+          RequireNumbers: true
           RequireSymbols: false
-          RequireUppercase: true
+          RequireUppercase: false
   
   HexVolUserPoolTokenClient:
     Type: AWS::Cognito::UserPoolClient
@@ -131,7 +131,7 @@ Resources:
             Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
             Properties:
               Path: /hex_volume
-              Method: POST
+              Method: PUT
               RestApiId: !Ref HexVolApi
               Auth:
                 Authorizer: CognitoAuthorizer
