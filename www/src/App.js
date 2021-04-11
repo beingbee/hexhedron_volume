@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Jumbotron, Row, Col, Alert, Button } from 'reactstrap';
 import axios from 'axios';
-import ToDo from './ToDo'
+import HexVol from './HexVol';
 
 import './App.css';
 
@@ -13,13 +13,10 @@ function App() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertDismissable, setAlertDismissable] = useState(false);
   const [idToken, setIdToken] = useState('');
-  const [toDos, setToDos] = useState([]);
+  const [hexVolume, setHexVol] = useState('');
 
   useEffect(() => {
     getIdToken();
-    if (idToken.length > 0) {
-      getAllTodos();
-    }
   }, [idToken]);
 
   axios.interceptors.response.use(response => {
@@ -56,51 +53,39 @@ function App() {
     });
   };
 
-  const getAllTodos = async () => {
-    const result = await axios({
-      url: `${config.api_base_url}/item/`,
-      headers: {
-        Authorization: idToken
-      }
-    }).catch(error => {
-      console.log(error);
-    });
-
-    console.log(result);
-
-    if (result && result.status === 401) {
-      clearCredentials();
-    } else if (result && result.status === 200) {
-      console.log(result.data.Items);
-      setToDos(result.data.Items);
-    }
-  };
-
-  const addToDo = async (event) => {
-    const newToDoInput = document.getElementById('newToDo');
-    const item = newToDoInput.value;
+  const calcHexVol = async (event) => {
+    const newVerticesInput = document.getElementById('newVertices');
+    const item = newVerticesInput.value;
+    
     console.log(item);
+    
+    
     if (!item || item === '') return;
+   
+    // TODO input validation  
 
-    const newToDo = {
-      "item": item,
-      "completed": false
+    const newData = {
+      "extent": "{" + item + "}"
     };
 
     const result = await axios({
       method: 'POST',
-      url: `${config.api_base_url}/item/`,
+      url: `${config.api_base_url}/hex_volume/`,
       headers: {
         Authorization: idToken
       },
-      data: newToDo
+      data: newData
     });
 
     if (result && result.status === 401) {
       clearCredentials();
     } else if (result && result.status === 200) {
-      getAllTodos();
-      newToDoInput.value = '';
+      if ( "volume" in result.data) {
+        setHexVol(result.data["volume"]) 
+      } else {
+        console.log(result.data)
+        setHexVol("value error in calculating") 
+      }
     }
   }
 
@@ -118,7 +103,7 @@ function App() {
             <Col md="6">
               {idToken.length > 0 ?
                 (
-                  <ToDo updateAlert={updateAlert} toDos={toDos} addToDo={addToDo}/>
+                  <HexVol updateAlert={updateAlert} hexVolume={hexVolume} calcHexVol={calcHexVol}/>
                 ) : (
                   <Button
                     href={`https://${config.cognito_hosted_domain}/login?response_type=token&client_id=${config.aws_user_pools_web_client_id}&redirect_uri=${config.redirect_url}`}
