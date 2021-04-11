@@ -16,8 +16,9 @@ def process_input(event):
     
     user_input = []
     try:
-        print('extent:', event["body"]["extent"])
-        user_input = eval(event["body"]["extent"])
+        extent_dic = eval(event["body"])
+        user_input = eval(extent_dic["extent"])
+        print(user_input)
         
         if not (len(user_input) == 2 and
                 len(user_input[0]) == 4 and
