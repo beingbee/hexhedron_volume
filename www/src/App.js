@@ -78,7 +78,7 @@ function App() {
       clearCredentials();
     } else if (result && result.status === 200) {
       if ( "volume" in result.data) {
-        setHexVol( "Volumne: " + result.data["volume"]); 
+        setHexVol( "Volume: " + result.data["volume"]); 
       } else {
         console.log("Error in server response:" + result.data);
         setHexVol("value error in calculating");
