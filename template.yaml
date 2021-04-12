@@ -45,6 +45,10 @@ Parameters:
   OauthToken:
     Type: String
     Description: GitHub Auth Personal token from https://github.com/settings/tokens
+  IPWhiteList:
+    Type: CommaDelimitedList
+    Description: Allow IP(IP CIDR) List seperated by comma. e.g. 1.1.1.1, 2.2.2.0/24
+    Default: 0.0.0.0/0
 
 Resources:
 # Cognito
@@ -109,6 +113,8 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt "HexVolUserPool.Arn"
+        ResourcePolicy:
+          IpRangeWhitelist: !Ref IPWhiteList
             
   # Lambda
   HexVolFunction:
