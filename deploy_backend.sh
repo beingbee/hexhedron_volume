@@ -30,10 +30,3 @@ else
   sed -i -e 's/COGNITO_HOSTED_DOMAIN/'"$COGNITO_HOSTED_DOMAIN"'/g' www/src/config.js
   sed -i -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' www/src/config.js
 fi
-
-[ $commit = "yes" ] && {
-  echo "Commit and Push to origie"
-  git add www/src/config.js
-  git commit -m "config.js updated"
-  git push
-}
