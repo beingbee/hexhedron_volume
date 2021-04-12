@@ -10,44 +10,47 @@ def calculate_volume(vertex):
     return hull.volume
 
 def process_input(event):
+    error = ""
     if not "body" in event or not "extent" in event["body"]:
-        print('no body, no extent')
-        return False, ""
+        error ='input error! no body nor no extent in body:' + str(event)
+        return False, "",error
     
     user_input = []
     try:
         extent_dic = eval(event["body"])
         user_input = eval(extent_dic["extent"])
-        print(user_input)
         
         if not (len(user_input) == 2 and
                 len(user_input[0]) == 4 and
                 len(user_input[1]) == 4 ):
-            print('list emelment error')
-            raise SyntaxError
+            raise SyntaxError("Invalid syntax in user input list")
     except Exception as e:
-        print('json load error', e)
-        return False, ""
+        error = 'json load error:' + str(e)
+        return False, "",error
     
     
-    return True, [ vertex for surface in user_input for vertex in surface] 
+    return True, [ vertex for surface in user_input for vertex in surface], ""
 
 
 def lambda_handler(event, context):
-    logging.info(event)
     print(event)
-    ok, input = process_input(event)
+    
+    ok, input, error = process_input(event)
     if ok:
         volume = calculate_volume(input)
+        body = json.dumps({ "volume": volume })
+        result = '[SUCCESS]'
     else:
-        volume = 'invalid input'
+        body = json.dumps({ "error": error })
+        result = '[ERROR]'
         
-    print('volume:' , volume) 
+    print(result, body)
+        
     return {
         "statusCode": 200,
         'headers': {
             "Access-Control-Allow-Origin": "*",
             "Content-Type":"application/json"
         },
-        "body": json.dumps({ "volume": volume })
+        "body": body
     }

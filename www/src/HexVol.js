@@ -16,7 +16,7 @@ function HexVol({ hexVolume, calcHexVol }) {
       </Form>
       <Row>
         <Col xs="12" className="mt-1 mb-1">
-           Volume is {hexVolume}
+           {hexVolume}
         </Col>
       </Row>
     </div>

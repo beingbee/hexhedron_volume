@@ -40,7 +40,7 @@ function App() {
 
   const clearCredentials = () => {
     window.location.href = config.redirect_url;
-  }
+  };
 
   const getIdToken = () => {
     const hash = window.location.hash.substr(1);
@@ -56,7 +56,6 @@ function App() {
   const calcHexVol = async (event) => {
     const newVerticesInput = document.getElementById('newVertices');
     const item = newVerticesInput.value;
-    let user_input;
     
     console.log(item);
     
@@ -79,13 +78,13 @@ function App() {
       clearCredentials();
     } else if (result && result.status === 200) {
       if ( "volume" in result.data) {
-        setHexVol(result.data["volume"]) 
+        setHexVol( "Volumne: " + result.data["volume"]); 
       } else {
-        console.log(result.data)
-        setHexVol("value error in calculating") 
+        console.log("Error in server response:" + result.data);
+        setHexVol("value error in calculating");
       }
     }
-  }
+  };
 
   return (
     <div className="App">
